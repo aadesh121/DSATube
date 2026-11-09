@@ -1,0 +1,35 @@
+name: Update videos and deploy
+on:
+  push: { branches: [main] }
+  schedule: [{ cron: "0 3 * * *" }]   # daily
+  workflow_dispatch:
+permissions: { contents: write, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      # YouTube sometimes blocks GitHub's servers. If so, this step adds nothing and the
+      # site is rebuilt from the files you committed from your own computer.
+      - run: python collect.py --max-minutes 40
+        continue-on-error: true
+      - run: |
+          git config user.name dsatube-bot && git config user.email bot@users.noreply.github.com
+          git add public data && git commit -m "Update data" || true
+          git push || true
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci && npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+*.tmp
+
+.env
+.env.*
+!.env.example
+
+.venv/
+venv/
+.python-version
+
+.DS_Store
