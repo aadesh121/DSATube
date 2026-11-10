@@ -18,7 +18,7 @@ If `python` isn't found, use `python3` (and `pip3`) everywhere below.
 
 ## 2. Collect the data (the big step)
 
-Open a terminal inside the `dsatube2` folder, then:
+Open a terminal inside the folder, then:
 
     pip install -r requirements.txt
     python collect.py
